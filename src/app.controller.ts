@@ -1,21 +1,18 @@
 import { Controller } from '@nestjs/common';
 import { AppService } from './app.service';
-import { EventPattern } from '@nestjs/microservices';
+import { Ctx, EventPattern, Payload, RmqContext } from "@nestjs/microservices";
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @EventPattern('message')
-  getHello() {
+  getHello(@Payload() a: any, @Ctx() context: RmqContext) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
     console.log('Hello World!');
-  }
-  @EventPattern('*')
-  weirdHello() {
-    console.log('Weird World!');
-  }
-  @EventPattern('#')
-  weirodHello() {
-    console.log('Weirdo World!');
+
+    channel.ack(originalMsg); // подтверждаем обработку
   }
 }

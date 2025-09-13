@@ -1,18 +1,16 @@
-FROM node:22
-
+FROM node:20-alpine
+# Specify our working directory, this is in our container/in our image
 WORKDIR /usr/src/app
 
-# 1. Скопировать package.json + lockfile
+# Copy the package.jsons from host to container
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
 
-# 2. Установить ВСЕ зависимости (включая dev)
-RUN npm install --legacy-peer-deps
+# Here we install all the deps
+RUN npm install
 
-# 3. Скопировать проект (кроме node_modules)
+# Bundle app source / copy all other files
 COPY . .
 
-# 4. Открыть порт
-EXPOSE 3000
-
-# 5. Запуск в dev-режиме
-CMD ["npm", "run", "start:dev"]
+# Build the app to the /dist folder
+RUN npm run build
