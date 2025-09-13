@@ -1,26 +1,18 @@
-# Базовый образ
 FROM node:22
 
-# Установка переменной окружения
-ENV NODE_ENV=production
+WORKDIR /usr/src/app
 
-# Установка рабочей директории
-WORKDIR /var/www/test-nest
+# 1. Скопировать package.json + lockfile
+COPY package*.json ./
 
-# Копируем package.json и устанавливаем зависимости
-COPY package.json package-lock.json ./
-RUN npm ci
+# 2. Установить ВСЕ зависимости (включая dev)
+RUN npm install --legacy-peer-deps
 
-# Копируем исходники
+# 3. Скопировать проект (кроме node_modules)
 COPY . .
 
+# 4. Открыть порт
+EXPOSE 3000
 
-# Компиляция TypeScript (если используем)
-RUN npm run build
-
-# Открываем порт
-ARG APP_PORT=3000
-EXPOSE ${APP_PORT}
-
-# Запускаем сервер
-ENTRYPOINT ["node", "dist/main.js"]
+# 5. Запуск в dev-режиме
+CMD ["npm", "run", "start:dev"]
